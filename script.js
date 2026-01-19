@@ -2,7 +2,6 @@
 // Pastikan URL dan KEY ini sesuai dengan dashboard Anda
 const SUPABASE_URL = 'https://grnbawakruzedgsqapvu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hHYxshwAPqB0eo68oQwI6Q_2fHCnJAW';
-
 // Kita pakai nama 'db' supaya tidak bentrok dengan library utamanya
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
