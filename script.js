@@ -31,14 +31,7 @@ document.getElementById('btn-signup').onclick = async () => {
   else alert('Cek email Anda untuk konfirmasi (jika fitur konfirmasi aktif)!');
 };
 
-// 3. Fitur Login
-document.getElementById('btn-login').onclick = async () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) alert(error.message);
-  else checkUser();
-};
+
 
 // 4. Fitur Logout
 document.getElementById('btn-logout').onclick = async () => {

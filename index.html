@@ -1,42 +1,79 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Komentar Gratis</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; line-height: 1.6; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 20px; cursor: pointer; background: #24b47e; color: white; border: none; border-radius: 5px; }
-        .hidden { display: none; }
-        .comment-item { border-bottom: 1px solid #eee; padding: 10px 0; }
-        .comment-email { font-weight: bold; font-size: 0.8em; color: #555; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Komentar Gratis</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+      background: #24b47e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .comment-item {
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    .comment-email {
+      font-weight: bold;
+      font-size: 0.8em;
+      color: #555;
+    }
+  </style>
 </head>
+
 <body>
 
-    <h2>Aplikasi Komentar</h2>
+  <h2>Aplikasi Komentar</h2>
 
-    <div id="auth-form">
-        <input type="email" id="email" placeholder="Email Anda">
-        <input type="password" id="password" placeholder="Password (min. 6 karakter)">
-        <button id="btn-signup">Daftar Akun Baru</button>
-        <button id="btn-login">Login</button>
-    </div>
+  <div id="auth-form">
+    <input type="email" id="email" placeholder="Email Anda">
+    <input type="password" id="password" placeholder="Password (min. 6 karakter)">
 
-    <div id="main-content" class="hidden">
-        <p>Halo, <span id="user-display"></span>! <button id="btn-logout" style="background: #ff4d4d;">Logout</button></p>
-        
-        <h3>Tulis Komentar</h3>
-        <textarea id="comment-text" placeholder="Apa yang Anda pikirkan?"></textarea>
-        <button id="btn-submit-comment">Kirim Komentar</button>
+    <button id="btn-login">Login</button>
+  </div>
 
-        <hr>
-        <h3>Semua Komentar</h3>
-        <div id="comments-list">Loading komentar...</div>
-    </div>
+  <div id="main-content" class="hidden">
+    <p>Halo, <span id="user-display"></span>! <button id="btn-logout" style="background: #ff4d4d;">Logout</button></p>
 
-    <script src="script.js"></script>
+    <h3>Tulis Komentar</h3>
+    <textarea id="comment-text" placeholder="Apa yang Anda pikirkan?"></textarea>
+    <button id="btn-submit-comment">Kirim Komentar</button>
+
+    <hr>
+    <h3>Semua Komentar</h3>
+    <div id="comments-list">Loading komentar...</div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
+
 </html>
