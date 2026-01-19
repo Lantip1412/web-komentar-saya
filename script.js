@@ -44,7 +44,7 @@ document.getElementById('btn-submit-comment').onclick = async () => {
   const content = document.getElementById('comment-text').value;
   const { data: { user } } = await db.auth.getUser();
 
-  const { error } = await db.from('comments').insert([
+  const { error } = await db.from('comment').insert([
     { content: content, email: user.email }
   ]);
 
@@ -58,7 +58,7 @@ document.getElementById('btn-submit-comment').onclick = async () => {
 // 6. Tampilkan Komentar
 async function loadComments() {
   const { data, error } = await supabase
-    .from('comments')
+    .from('comment')
     .select('*')
     .order('created_at', { ascending: false });
 
