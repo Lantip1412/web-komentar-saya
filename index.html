@@ -2,73 +2,122 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Web Chat & Video</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src='https://meet.jit.si/external_api.js'></script>
     
     <style>
-        body { font-family: sans-serif; margin: 0; background: #f0f2f5; height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background: #e5ddd5; height: 100vh; display: flex; flex-direction: column; }
         
-        /* Layar Login */
+        /* --- 1. LAYAR LOGIN (Tengah) --- */
         #auth-form {
-            margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;
+            margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px;
         }
-        input { display: block; width: 90%; margin: 10px auto; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        input { display: block; width: 100%; margin: 10px 0; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
         
-        /* Area Utama Chat */
+        /* --- 2. LAYAR UTAMA --- */
         #main-content { display: flex; flex-direction: column; height: 100%; display: none; }
         
-        /* Header Atas */
-        header { background: #008069; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-video { background: white; color: #008069; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
-        .btn-logout { background: #ff5555; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-left: 10px; }
-
-        /* Area Pesan (Tengah) */
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column-reverse; }
-        
-        /* Bubble Chat Style */
-        .message-bubble { 
-            max-width: 70%; padding: 8px 12px; margin: 5px; border-radius: 10px; font-size: 0.9em; position: relative; display: flex; flex-direction: column;
+        /* HEADER (Diperbaiki untuk Mobile) */
+        header { 
+            background: #008069; color: white; padding: 10px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10;
         }
-        .my-message { align-self: flex-end; background: #d9fdd3; } /* Pesan Saya (Hijau) */
-        .other-message { align-self: flex-start; background: white; } /* Pesan Teman (Putih) */
+
+        /* Nama User: Agar tidak menabrak tombol */
+        #user-display { 
+            font-weight: bold; font-size: 0.95em; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Potong teks jika kepanjangan */
+            max-width: 40%; /* Batasi lebar maksimal */
+        }
+
+        /* Grup Tombol Header */
+        .header-buttons { display: flex; gap: 8px; }
+
+        .btn-video, .btn-logout { 
+            border: none; padding: 8px 12px; border-radius: 20px; 
+            font-size: 0.85em; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-video { background: white; color: #008069; }
+        .btn-logout { background: #ff5555; color: white; }
+
+        /* AREA CHAT */
+        #chat-box { 
+            flex: 1; overflow-y: auto; padding: 15px; 
+            display: flex; flex-direction: column-reverse; /* Pesan baru di bawah */
+            background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"); /* Background ala WA */
+            background-repeat: repeat;
+        }
         
-        .sender-name { font-size: 0.7em; color: #d65a5a; font-weight: bold; margin-bottom: 2px; }
-        .message-text { margin-bottom: 3px; }
-        .message-time { font-size: 0.65em; color: #999; align-self: flex-end; margin-top: 2px;} /* Gaya Waktu */
+        /* Bubble Chat */
+        .message-bubble { 
+            max-width: 80%; padding: 8px 10px; margin-bottom: 8px; border-radius: 8px; 
+            font-size: 0.95em; position: relative; display: flex; flex-direction: column; 
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        .my-message { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 0; } 
+        .other-message { align-self: flex-start; background: white; border-top-left-radius: 0; }
+        
+        .sender-name { font-size: 0.75em; color: #d65a5a; font-weight: bold; margin-bottom: 2px; }
+        .message-text { word-wrap: break-word; } /* Agar teks panjang turun ke bawah */
+        .message-time { font-size: 0.65em; color: #999; align-self: flex-end; margin-top: 4px; min-width: 40px; text-align: right;} 
 
-        /* Area Ketik (Bawah) */
-        footer { padding: 10px; background: #f0f2f5; display: flex; gap: 10px; }
-        #message-input { flex: 1; padding: 12px; border-radius: 20px; border: none; outline: none; }
-        #btn-send { background: #008069; color: white; border: none; padding: 0 20px; border-radius: 50%; cursor: pointer; }
+        /* FOOTER (Input Pesan) */
+        footer { 
+            padding: 8px 10px; background: #f0f2f5; display: flex; align-items: center; gap: 8px; 
+            border-top: 1px solid #ddd;
+        }
+        #message-input { 
+            flex: 1; padding: 10px 15px; border-radius: 20px; border: none; outline: none; font-size: 16px; background: white;
+        }
+        #btn-send { 
+            background: #008069; color: white; border: none; width: 40px; height: 40px; 
+            border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 1.2em;
+        }
 
-        /* Container Video Call */
+        /* VIDEO CALL SCREEN */
         #video-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: black; z-index: 999; display: none;
+            background: black; z-index: 9999; display: none;
         }
         #close-video {
-            position: absolute; top: 20px; right: 20px; z-index: 1000;
-            background: red; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;
+            position: absolute; top: 20px; right: 20px; z-index: 10000;
+            background: rgba(255, 0, 0, 0.8); color: white; border: none; padding: 10px 20px; 
+            font-weight: bold; cursor: pointer; border-radius: 20px;
+        }
+
+        /* --- TWEAK KHUSUS HP (MEDIA QUERY) --- */
+        @media (max-width: 480px) {
+            header { padding: 8px 12px; }
+            .btn-video span { display: none; } /* Sembunyikan tulisan 'Video Call' di HP, sisakan ikon */
+            .btn-video::after { content: "Video"; } /* Ganti jadi teks pendek */
+            .btn-logout span { display: none; }
+            .btn-logout::after { content: "Keluar"; }
+            
+            #user-display { max-width: 35%; font-size: 0.85em; }
+            .message-bubble { max-width: 85%; }
         }
     </style>
 </head>
 <body>
 
     <div id="auth-form">
-        <h2>Masuk Chat Room</h2>
+        <h2 style="color:#008069">WhatsApp KW</h2>
+        <p style="color:#666; font-size:0.9em">Login untuk mulai chat</p>
         <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Password">
-        <button onclick="login()" style="background:#008069; color:white; padding:10px 30px; border:none; border-radius:5px; cursor:pointer;">Masuk</button>
+        <button onclick="login()" style="width:100%; background:#008069; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; margin-top:10px;">MASUK</button>
     </div>
 
     <div id="main-content">
         <header>
             <div id="user-display">User</div>
-            <div>
-                <button class="btn-video" onclick="startVideoCall()">📹 Video Call</button>
-                <button class="btn-logout" onclick="logout()">Logout</button>
+            <div class="header-buttons">
+                <button class="btn-video" onclick="startVideoCall()">📹 <span>Video Call</span></button>
+                <button class="btn-logout" onclick="logout()">🚪 <span>Logout</span></button>
             </div>
         </header>
 
@@ -81,7 +130,7 @@
     </div>
 
     <div id="video-container">
-        <button id="close-video" onclick="endVideoCall()">Tutup Telepon ❌</button>
+        <button id="close-video" onclick="endVideoCall()">Tutup ❌</button>
         <div id="jitsi-frame" style="height: 100%; width: 100%;"></div>
     </div>
 
