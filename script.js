@@ -1,37 +1,38 @@
 // --- 1. KONFIGURASI SUPABASE ---
-// Pastikan URL dan KEY ini sesuai dengan dashboard Anda
 const SUPABASE_URL = 'https://grnbawakruzedgsqapvu.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_hHYxshwAPqB0eo68oQwI6Q_2fHCnJAW';
-// Kita pakai nama 'db' supaya tidak bentrok dengan library utamanya
+
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- 2. ELEMEN HTML ---
+// --- 2. PENGATURAN WAKTU LOGOUT (Bisa Diubah) ---
+// 5 Menit = 5 * 60 * 1000 = 300000 milidetik
+// Jika ingin tes cepat, ubah jadi 10000 (10 detik)
+const BATAS_WAKTU_DIAM = 5 * 60 * 1000;
+
+// --- 3. ELEMEN HTML ---
 const authForm = document.getElementById('auth-form');
 const mainContent = document.getElementById('main-content');
 const commentsList = document.getElementById('comments-list');
 
-// --- 3. LOGIKA APLIKASI ---
+// --- 4. LOGIKA APLIKASI ---
 
-// Cek apakah user sedang login atau tidak
 async function checkUser() {
   const { data: { user } } = await db.auth.getUser();
 
   if (user) {
-    // Jika login: Tampilkan konten utama, sembunyikan form login
     authForm.classList.add('hidden');
     mainContent.classList.remove('hidden');
-    // Tampilkan email user di layar
     document.getElementById('user-display').innerText = user.email;
-    // Ambil data komentar
     loadComments();
+
+    // Mulai jalankan timer logout otomatis
+    mulaiPenghitungWaktu();
   } else {
-    // Jika belum login: Tampilkan form login saja
     authForm.classList.remove('hidden');
     mainContent.classList.add('hidden');
   }
 }
 
-// Tombol Login
 document.getElementById('btn-login').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -39,20 +40,16 @@ document.getElementById('btn-login').onclick = async () => {
   const { error } = await db.auth.signInWithPassword({ email, password });
 
   if (error) alert("Gagal login: " + error.message);
-  else checkUser(); // Refresh halaman user
+  else checkUser();
 };
 
-// Tombol Logout
 document.getElementById('btn-logout').onclick = async () => {
   await db.auth.signOut();
-  location.reload(); // Refresh halaman browser
+  location.reload();
 };
 
-// Tombol Kirim Komentar
 document.getElementById('btn-submit-comment').onclick = async () => {
   const content = document.getElementById('comment-text').value;
-
-  // Cek siapa yang sedang login
   const { data: { user } } = await db.auth.getUser();
 
   if (!user) {
@@ -60,7 +57,6 @@ document.getElementById('btn-submit-comment').onclick = async () => {
     return;
   }
 
-  // Kirim data ke tabel 'comment'
   const { error } = await db.from('comment').insert([
     { content: content, email: user.email }
   ]);
@@ -68,30 +64,23 @@ document.getElementById('btn-submit-comment').onclick = async () => {
   if (error) {
     alert("Gagal kirim komentar: " + error.message);
   } else {
-    // Jika sukses, kosongkan kolom ketik dan refresh daftar komentar
     document.getElementById('comment-text').value = '';
     loadComments();
   }
 };
 
-// Fungsi Mengambil Daftar Komentar
 async function loadComments() {
-  // Ambil data dari tabel 'comment'
   const { data, error } = await db
     .from('comment')
     .select('*')
     .order('created_at', { ascending: false });
 
   if (error) {
-    // Jika error, tampilkan pesan di layar
-    console.error("Error loading comments:", error);
-    commentsList.innerHTML = "<p style='color:red'>Gagal memuat komentar. Cek Console.</p>";
+    commentsList.innerHTML = "<p style='color:red'>Gagal memuat komentar.</p>";
   } else {
-    // Jika data kosong
     if (data.length === 0) {
       commentsList.innerHTML = "<p>Belum ada komentar.</p>";
     } else {
-      // Render (tampilkan) data ke HTML
       commentsList.innerHTML = data.map(c => `
                 <div class="comment-item">
                     <div class="comment-email">${c.email}</div>
@@ -102,5 +91,28 @@ async function loadComments() {
   }
 }
 
-// Jalankan fungsi cek user saat pertama kali web dibuka
+// --- 5. FITUR LOGOUT OTOMATIS (BARU) ---
+let timerLogout;
+
+function mulaiPenghitungWaktu() {
+  // Setiap kali fungsi ini dipanggil, reset timer lama
+  clearTimeout(timerLogout);
+
+  // Set timer baru sesuai batas waktu
+  timerLogout = setTimeout(async () => {
+    alert("Anda tidak aktif selama 5 menit. Logout otomatis demi keamanan.");
+    await db.auth.signOut();
+    location.reload();
+  }, BATAS_WAKTU_DIAM);
+}
+
+// Dengarkan aktivitas user (Mouse gerak, Klik, Ngetik)
+// Jika ada aktivitas, timer di-reset ulang ke 0
+window.onload = mulaiPenghitungWaktu;
+document.onmousemove = mulaiPenghitungWaktu;
+document.onkeypress = mulaiPenghitungWaktu;
+document.onclick = mulaiPenghitungWaktu;
+document.onscroll = mulaiPenghitungWaktu;
+
+// Jalankan aplikasi
 checkUser();
