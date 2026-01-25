@@ -7,7 +7,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // --- 2. PENGATURAN WAKTU LOGOUT (Bisa Diubah) ---
 // 5 Menit = 5 * 60 * 1000 = 300000 milidetik
 // Jika ingin tes cepat, ubah jadi 10000 (10 detik)
-const BATAS_WAKTU_DIAM = 5 * 60 * 1000;
+const BATAS_WAKTU_DIAM = 10000;
 
 // --- 3. ELEMEN HTML ---
 const authForm = document.getElementById('auth-form');
